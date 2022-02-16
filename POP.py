@@ -1,4 +1,5 @@
 import discord
+import os
 import time
 
 class POP(discord.Client):
