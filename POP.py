@@ -24,14 +24,27 @@ class POP(discord.Client):
     async def on_message(self, message):
         #Pour éviter que le bot se réponde à lui-même et donc faire des boucles sur lui-même
         if message.author.id == self.user.id:
+            #Si le message est une commande à POP
+            if len(message.content.split("!!")) == 2:
+                time.sleep(5)
+                await message.delete()
+            t = self.dico_message.get(message.channel.id)
+            #Si le message fait partie des commandes enregistrées
+            if t != None:
+                if message.content in t:
+                    #Suppression du message
+                    await message.delete()
+
             return
 
         if message.content.startswith('!!help'):
-            await message.channel.send("!!add #CHANNEL [message1,message2,...] : Ajoute des messages dans la file de messages.\n\n"
+            await message.channel.send("Liste des commandes :\n\n"
+                                       "!!add #CHANNEL [message1,message2,...] : Ajoute des messages dans la file de messages.\n\n"
                                        "!!del #CHANNEL [message1,message2,...] : Supprime des messages dans la file de messages.\n\n"
                                        "!!liste #CHANNEL : Liste les messages de la file en lien avec le channel.\n\n"
                                        "!!go_chart #CHANNEL : Exécute la file de messages du channel en argument.\n\n"
                                        "!!go_chart : Exécute la file de messages de l'ensemble des channels.")
+            await message.delete()  # suprime l'appel
 
         if message.content.startswith('!!liste'):
             tab_m = message.content.split()
@@ -54,6 +67,7 @@ class POP(discord.Client):
                     await message.channel.send("Ce channel n'existe pas")
             except ValueError:
                 await message.channel.send("Ce channel n'existe pas")
+            await message.delete()  # suprime l'appel
 
         if message.content.startswith('!!go_chart'):
             #Dans cette partie la fonction sleep est utilisée pour éviter de surcharger les autres bots
@@ -86,6 +100,7 @@ class POP(discord.Client):
                             await c.send(m)
                             time.sleep(10)
                         time.sleep(10)
+            await message.delete()  # suprime l'appel
 
 
         if message.content.startswith('!!del'):
@@ -108,6 +123,7 @@ class POP(discord.Client):
                     else:
                         self.dico_message.update({int(id):tab})
                     self.fichier_config_write(self.tab_chanel, self.get_tab_dico())
+            await message.delete()  # suprime l'appel
 
 
 
@@ -135,6 +151,7 @@ class POP(discord.Client):
                         self.fichier_config_write(self.tab_chanel, self.get_tab_dico())
                 except ValueError:
                     await message.channel.send("Ce channel n'existe pas")
+            await message.delete()  # suprime l'appel
 
 
     def init_tab_channel(self,tab):
@@ -207,4 +224,4 @@ class POP(discord.Client):
         self.bis_fichier_config_write('conf_messages.bot', messages)
 
 client = POP()
-client.run('TOKEN')#Token de connexion à discord
+client.run('Token')#Token de connexion à discord
